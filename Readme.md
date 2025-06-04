@@ -1,0 +1,1 @@
+This is a banking application backend with JWT Authentication, Postgres and containerized in Docker.
