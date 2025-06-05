@@ -103,7 +103,7 @@ func (s *PostgresStore) GetAccounts() ([]*Account, error) {
 			&account.Number, 
 			&account.Balance, 
 			&account.CreatedAt);
-		}
+
 
 		if err != nil {
 			return nil, err
