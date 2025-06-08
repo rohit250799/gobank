@@ -9,6 +9,7 @@ import (
 	"os"
 	"strconv"
 
+	//"github.com/aws/aws-sdk-go-v2/aws/retry"
 	jwt "github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/mux"
 )
@@ -37,7 +38,6 @@ func (s *ApiServer) Run() {
 	http.ListenAndServe(s.listenAddr, router)
 }
 
-//593016 account number
 func (s *ApiServer) handleLogin (w http.ResponseWriter, r *http.Request) error {
 	if r.Method != "POST" {
 		return fmt.Errorf("method not allowed %s", r.Method)
@@ -52,9 +52,21 @@ func (s *ApiServer) handleLogin (w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	fmt.Printf("%+v\n", acc)
+	if !acc.ValidatePassword(req.Password) {
+		return fmt.Errorf("not authenticated")
+	}
+
+	token, err := createJWT(acc)
+	if err != nil {
+		return err
+	}
+
+	resp := LoginResponse{
+		Token: token,
+		Number: acc.Number,
+	}
 	
-	return WriteJson(w, http.StatusOK, req)
+	return WriteJson(w, http.StatusOK, resp)
 }
 
 func (s *ApiServer) handleAccount(w http.ResponseWriter, r *http.Request) error {
